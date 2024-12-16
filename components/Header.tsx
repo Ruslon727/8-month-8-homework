@@ -1,7 +1,7 @@
 "use client"
 import { BasketIcon, LoginIcon, SearchIcon } from "@/public/icon/Icon"
 import Button from "./Button"
-import { FormEvent, useState } from "react"
+import { FormEvent, useContext, useState } from "react"
 import Modal from "./Modal"
 import LoginInput from './LoginInput'
 import { instance } from "@/hook/instance"
@@ -11,12 +11,14 @@ import ForgotPassword from "./ForgotPassword"
 import ResetPassword from "./ResetPassword"
 import LogoGreenShop from '../public/images/LogoGreenShop.png'
 import Image from 'next/image';
+import { Context } from "@/context/AuthContext"
 
 
 const Header = () => {
     const [registerEmail, setRegisterEmail] = useState<string>("")
     const [loginModal, setLoginModal] = useState<boolean>(false)
     const [isLogin, setIsLogin] = useState<"login" | "register" | "verifyRegister" | "forgotPassword" | "reset-password">("login")
+    const { setToken } = useContext(Context)
 
     function loginSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
@@ -25,9 +27,9 @@ const Header = () => {
                 password: (e.target as HTMLFormElement).password.value,
                 usernameoremail: (e.target as HTMLFormElement).email.value
             }
-            instance().post("/login", data).then(() => {
+            instance().post("/login", data).then((res) => {
                 setLoginModal(false)
-
+                setToken(res.data.access_token)
             })
         }
         else if (isLogin == "register") {
@@ -66,7 +68,7 @@ const Header = () => {
         else if (isLogin == "reset-password") {
             const data = {
                 email: registerEmail,
-                password: (e.target as HTMLFormElement).password.value,
+                new_password: (e.target as HTMLFormElement).password.value,
                 otp: (e.target as HTMLFormElement).otp.value
             }
             instance().put(`/reset-password`, data).then(() => setIsLogin("login"))
@@ -75,16 +77,16 @@ const Header = () => {
 
     return (
         <header className="px-[120px] pt-[25px] flex items-center">
-            <Image src={LogoGreenShop} alt="Logo Green Shop" />
+            <Image src={LogoGreenShop} alt="Logo Green Shop" priority />
             <nav className="flex items-center gap-[50px] ml-[230px]">
-                <span className="text-[#3D3D3D] font-normal leading-[20px] text-[16px]">Home</span>
-                <span className="text-[#3D3D3D] font-normal leading-[20px] text-[16px]">Shop</span>
-                <span className="text-[#3D3D3D] font-normal leading-[20px] text-[16px]">Plant Care</span>
-                <span className="text-[#3D3D3D] font-normal leading-[20px] text-[16px]">Blogs</span>
+                <span className="text-[#3D3D3D] font-normal leading-[20px] text-[16px] cursor-pointer">Home</span>
+                <span className="text-[#3D3D3D] font-normal leading-[20px] text-[16px] cursor-pointer">Shop</span>
+                <span className="text-[#3D3D3D] font-normal leading-[20px] text-[16px] cursor-pointer">Plant Care</span>
+                <span className="text-[#3D3D3D] font-normal leading-[20px] text-[16px] cursor-pointer">Blogs</span>
             </nav>
             <div className="flex items-center gap-[30px] ml-[260px]">
-                <span><SearchIcon /></span>
-                <span><BasketIcon /></span>
+                <span className="cursor-pointer"><SearchIcon /></span>
+                <span className="cursor-pointer"><BasketIcon /></span>
             </div>
 
             <Button extraStyle="ml-[50px]" onClick={() => setLoginModal(true)} type='button' title="Login" leftIcon={<LoginIcon />} />
