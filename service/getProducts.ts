@@ -28,9 +28,12 @@ interface ParamsType {
     limit: number
     category: string | null
     tags: string | null
+    min_price: number
+    max_price: number
+    size: string | null
 }
 
-export const getProducts = (categoryName: string | null, tags: string | null, page: number, setTotalPage: any) => {
+export const getProducts = (categoryName: string | null, tags: string | null, page: number, setTotalPage: any, fullPrice: number[], size: string | null) => {
     const { token } = useContext(Context)
 
 
@@ -38,14 +41,17 @@ export const getProducts = (categoryName: string | null, tags: string | null, pa
         page,
         limit: 6,
         category: categoryName == "All" ? null : categoryName,
-        tags: tags
+        tags: tags,
+        min_price: fullPrice[0],
+        max_price: fullPrice[1],
+        size
     }
 
     const { data = [] } = useQuery({
-        queryKey: ['products', categoryName, tags, page],
+        queryKey: ['products', categoryName, tags, page, fullPrice, size],
         enabled: true,
         queryFn: () => instance().get("/products", {
-            headers: token ? { "Authorization": `Bearer ${token}`} : {},
+            headers: token ? { "Authorization": `Bearer ${token}` } : {},
             params: params
         }).then(res => {
             setTotalPage(res.data.total_count)

@@ -11,6 +11,7 @@ const ProductCard: React.FC<{ item: ProductsType }> = ({ item }) => {
     const queryClient = useQueryClient()
     const { token } = useContext(Context)
 
+    // Like part start
     const likeMutation = useMutation({
         mutationFn: (id: string) => instance().post(`/like/${id}`, {}, {
             headers: { "Authorization": `Bearer ${token}` }
@@ -19,6 +20,38 @@ const ProductCard: React.FC<{ item: ProductsType }> = ({ item }) => {
             queryClient.invalidateQueries({ queryKey: ["products"] })
         }
     })
+
+    function handleLikeBtnClick(id: string) {
+        if (!token) {
+            alert("Like bosishingiz uchun logindan o'tish shart!")
+        }
+        else {
+            likeMutation.mutate(id)
+        }
+    }
+    // Like part end
+
+    // Basket part start
+    const basketMutation = useMutation({
+        mutationFn: (data: { productId: string }) => instance().post(`/basket`, data, {
+            headers: { "Authorization": `Bearer ${token}` }
+        }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["products"] })
+            queryClient.invalidateQueries({ queryKey: ['basket_list'] })
+        }
+    })
+
+    function handleBasketBtnClick(productId: string) {
+        if (!token) {
+            alert("Basket bosishingiz uchun logindan o'tish shart!")
+        }
+        else {
+            const data = { productId }
+            basketMutation.mutate(data)
+        }
+    }
+    // Basket part end
 
     return (
         <div className="w-[300px]">
@@ -29,8 +62,8 @@ const ProductCard: React.FC<{ item: ProductsType }> = ({ item }) => {
                 <del>{item.cost}$</del>
             </div>
             <div className="space-x-2">
-                <button onClick={() => token ? likeMutation.mutate(item.product_id) : {}} className={`text-[20px] font-semibold ${item.liked && "text-red-500"}`}><LikeIcon/></button>
-                <button className={`text-[20px] font-semibold ${item.basket && "bg-green-500"}`}><KorzinaIcon/></button>
+                <button onClick={() => handleLikeBtnClick(item.product_id)} className={`text-[20px] font-semibold ${item.liked && "text-red-500   "}`}><LikeIcon /></button>
+                <button onClick={() => handleBasketBtnClick(item.product_id)} className={`text-[20px] font-semibold ${item.basket && "text-green-500"}`}><KorzinaIcon /></button>
             </div>
         </div>
     )

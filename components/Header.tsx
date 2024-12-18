@@ -12,9 +12,13 @@ import ResetPassword from "./ResetPassword"
 import LogoGreenShop from '../public/images/LogoGreenShop.png'
 import Image from 'next/image';
 import { Context } from "@/context/AuthContext"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { Badge } from "@nextui-org/badge"
 
 
 const Header = () => {
+    const { token } = useContext(Context)
+    const queryClient = useQueryClient()
     const [registerEmail, setRegisterEmail] = useState<string>("")
     const [loginModal, setLoginModal] = useState<boolean>(false)
     const [isLogin, setIsLogin] = useState<"login" | "register" | "verifyRegister" | "forgotPassword" | "reset-password">("login")
@@ -30,6 +34,7 @@ const Header = () => {
             instance().post("/login", data).then((res) => {
                 setLoginModal(false)
                 setToken(res.data.access_token)
+                queryClient.invalidateQueries({ queryKey: ['products'] })
             })
         }
         else if (isLogin == "register") {
@@ -75,6 +80,15 @@ const Header = () => {
         }
     }
 
+    const { data: BasketProducts = [] } = useQuery({
+        queryKey: ['basket_list'],
+        queryFn: () => token ? instance().get(`/basket`, {
+            headers: { "Authorization": `Bearer ${token}` },
+            params: { page: 1, limit: 100000 }
+        }).then(res => res.data.ProductId) : []
+    })
+    
+
     return (
         <header className="px-[120px] pt-[25px] flex items-center">
             <Image src={LogoGreenShop} alt="Logo Green Shop" priority />
@@ -86,7 +100,11 @@ const Header = () => {
             </nav>
             <div className="flex items-center gap-[30px] ml-[260px]">
                 <span className="cursor-pointer"><SearchIcon /></span>
-                <span className="cursor-pointer"><BasketIcon /></span>
+                <button className="text-green-500 ">
+                    <Badge color="success" className="text-white" content={token ? BasketProducts.length ? BasketProducts.length : "" : ""}>
+                        <BasketIcon />
+                    </Badge>
+                </button>
             </div>
 
             <Button extraStyle="ml-[50px]" onClick={() => setLoginModal(true)} type='button' title="Login" leftIcon={<LoginIcon />} />
