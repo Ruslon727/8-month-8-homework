@@ -1,5 +1,5 @@
 "use client"
-import { BasketIcon, LoginIcon, SearchIcon } from "@/public/icon/Icon"
+import { BasketIcon, CallIcon, EmailIcon, FacebookIcon, InstagramIcon, LinkedinIcon, LocationIcon, LoginIcon, SearchIcon, TwitterIcon, UnionIcon } from "@/public/icon/Icon"
 import Button from "./Button"
 import { FormEvent, useContext, useState } from "react"
 import Modal from "./Modal"
@@ -14,6 +14,9 @@ import Image from 'next/image';
 import { Context } from "@/context/AuthContext"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Badge } from "@nextui-org/badge"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+
 
 
 const Header = () => {
@@ -23,6 +26,7 @@ const Header = () => {
     const [loginModal, setLoginModal] = useState<boolean>(false)
     const [isLogin, setIsLogin] = useState<"login" | "register" | "verifyRegister" | "forgotPassword" | "reset-password">("login")
     const { setToken } = useContext(Context)
+    const router = useRouter()
 
     function loginSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault()
@@ -87,26 +91,25 @@ const Header = () => {
             params: { page: 1, limit: 100000 }
         }).then(res => res.data.ProductId) : []
     })
-    
+
 
     return (
         <header className="px-[120px] pt-[25px] flex items-center">
             <Image src={LogoGreenShop} alt="Logo Green Shop" priority />
             <nav className="flex items-center gap-[50px] ml-[230px]">
-                <span className="text-[#3D3D3D] font-normal leading-[20px] text-[16px] cursor-pointer">Home</span>
-                <span className="text-[#3D3D3D] font-normal leading-[20px] text-[16px] cursor-pointer">Shop</span>
-                <span className="text-[#3D3D3D] font-normal leading-[20px] text-[16px] cursor-pointer">Plant Care</span>
-                <span className="text-[#3D3D3D] font-normal leading-[20px] text-[16px] cursor-pointer">Blogs</span>
+                <Link href={"/"} className="text-[#3D3D3D] font-normal leading-[20px] text-[16px] cursor-pointer">Home</Link>
+                <Link href={"/shop"} className="text-[#3D3D3D] font-normal leading-[20px] text-[16px] cursor-pointer">Shop</Link>
+                <Link href={"/plant-care"} className="text-[#3D3D3D] font-normal leading-[20px] text-[16px] cursor-pointer">Plant Care</Link>
+                <Link href={"/blogs"} className="text-[#3D3D3D] font-normal leading-[20px] text-[16px] cursor-pointer">Blogs</Link>
             </nav>
             <div className="flex items-center gap-[30px] ml-[260px]">
                 <span className="cursor-pointer"><SearchIcon /></span>
-                <button className="text-green-500 ">
+                <button onClick={() => router.push("/shop/shopping-cart")} className="text-green-500 ">
                     <Badge color="success" className="text-white" content={token ? BasketProducts.length ? BasketProducts.length : "" : ""}>
                         <BasketIcon />
                     </Badge>
                 </button>
             </div>
-
             <Button extraStyle="ml-[50px]" onClick={() => setLoginModal(true)} type='button' title="Login" leftIcon={<LoginIcon />} />
             <Modal isOpen={loginModal} setIsOpen={setLoginModal} width={500}>
                 <ul className="flex items-center justify-center gap-2.5 mb-[53px]">

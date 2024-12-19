@@ -1,7 +1,12 @@
 
+
+
 const page = () => {
+
   return (
-    <div>page</div>
+    <>
+      Shop page
+    </>
   )
 }
 

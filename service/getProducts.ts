@@ -21,6 +21,7 @@ export interface ProductsType {
     short_description: string
     size: string[]
     tags: string[]
+    totalPrice?: string | number | null
 }
 
 interface ParamsType {
